@@ -94,15 +94,15 @@ class Graph {
         }
     }
 
-    addEdge (n1,n2)
+    addEdge (n1,n2,weight)
     {
         var n1_index = this.nodes.indexOf (n1)
         var n2_index = this.nodes.indexOf (n2)
 
-        this.insMatrix.set (n1_index,n2_index,1)
+        this.insMatrix.set (n1_index,n2_index, weight || 1)
         this.adjList [n1_index].add (n2)
         if (!this.directed) {
-            this.insMatrix.set (n2_index,n1_index,1)
+            this.insMatrix.set (n2_index,n1_index, weight || 1)
             this.adjList [n2_index].add (n1)
         }
         this.notifyListeners ()
@@ -126,7 +126,7 @@ class Graph {
         //return this.adjList [this.nodes.indexOf (n1)].has(n2) || !this.directed && this.adjList [this.nodes.indexOf (n2)].has(n1)  
         let index1 = this.nodes.indexOf (n1) 
         let index2 = this.nodes.indexOf (n2) 
-        return this.directed ? this.insMatrix.get (index1,index2) == 1 : this.insMatrix.get (index1,index2) == 1 || this.insMatrix.get (index2,index1) == 1
+        return this.directed ? this.insMatrix.get (index1,index2) >= 1 : this.insMatrix.get (index1,index2) >= 1 || this.insMatrix.get (index2,index1) >= 1
     }
 
     getAdjacentTo (node)
