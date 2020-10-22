@@ -39,7 +39,7 @@ class Graph {
         this.edgeIdCounter = 0
         this.notifyListeners ()
     }
-
+//for testing
     getNumEdgesL ()
     {
         var counter = 0
@@ -48,6 +48,7 @@ class Graph {
         }
         return this.directed ? counter : counter/2
     }
+//for testing
     getNumEdgesM ()
     {
         var counter = 0
