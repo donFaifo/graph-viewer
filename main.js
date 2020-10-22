@@ -15,30 +15,19 @@ window.addEventListener('load',function(){
     var ge = new CanvasControllerGraphEditor (gp)
     var ni = new CanvasControllerNodeIndexer (gp)
     var pt = new CanvasControllerPathTracer (gp)
-    ge.addOnStateChangeListener (state => {
+
+    var OnStateChangeListener = function (state) {
         if (state instanceof Element) {
             v.ControllerStateDisplay.innerHTML = ''
             v.ControllerStateDisplay.appendChild (state)
         }
         else
             v.ControllerStateDisplay.innerHTML = state
-    })
-    ni.addOnStateChangeListener (state => {
-        if (state instanceof Element) {
-            v.ControllerStateDisplay.innerHTML = ''
-            v.ControllerStateDisplay.appendChild (state)
-        }
-        else
-            v.ControllerStateDisplay.innerHTML = state
-    })
-    pt.addOnStateChangeListener (state => {
-        if (state instanceof Element) {
-            v.ControllerStateDisplay.innerHTML = ''
-            v.ControllerStateDisplay.appendChild (state)
-        }
-        else
-            v.ControllerStateDisplay.innerHTML = state
-    })
+    }
+
+    ge.addOnStateChangeListener (OnStateChangeListener)
+    ni.addOnStateChangeListener (OnStateChangeListener)
+    pt.addOnStateChangeListener (OnStateChangeListener)
     var active_controller
 
     v.setup (document.getElementById ('canvas'))
