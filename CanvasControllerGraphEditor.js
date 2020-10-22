@@ -63,15 +63,19 @@ class CanvasControllerGraphEditor extends CanvasController
     mouseClick (e)
     {
         var clickPosition = this.getCanvasEventCoordinates (e)
-        let node = this.nodeInRange (clickPosition)
+        let node = this.nodeClicked (clickPosition)
+        let edge = this.edgeClicked (clickPosition)
         switch (e.button) {
             case 0 :
-                if (!node) {
+                if (!node && !edge) {
                     this.createNewVertex (clickPosition)
                     this.graphPrinter.drawGraph (this.graph, this.view.canvas)
                 }
-                else {
+                else if (node){
                     this.startNewEdge (node,e)
+                }
+                else if (edge){
+                    this.updateEdgeWeight (edge,clickPosition)
                 }
                 break
             case 2 :
@@ -83,7 +87,7 @@ class CanvasControllerGraphEditor extends CanvasController
         }
     }
 
-    nodeInRange (clickPosition)
+    nodeClicked (clickPosition)
     {
         for (var i = 0;i<this.graph.nodes.length;i++){
             if (this.graph.nodes[i].position) {
@@ -96,6 +100,48 @@ class CanvasControllerGraphEditor extends CanvasController
                 
         }
         return null
+    }
+
+    edgeClicked (clickPosition)
+    {
+        for (var i = 0;i<this.graphPrinter.lastDrawedEdges.length;i++){
+
+            var weight_center_rel_click_position = clickPosition.substract (this.graphPrinter.lastDrawedEdges[i].weight_center)
+            if (weight_center_rel_click_position.len () < this.graphPrinter.edgeWeightRadius) {
+                this.graphPrinter.lastDrawedEdges[i].click_position = weight_center_rel_click_position
+                return this.graphPrinter.lastDrawedEdges[i]
+            }        
+        }
+        return null
+    }
+
+    updateEdgeWeight (edge)
+    {
+        let cont = document.createElement ('div')
+        var text =document.createTextNode("New weight value: ")
+        var weight = document.createElement ('input')
+        weight.value = edge.weight
+        var b = document.createElement ('button')
+        b.onclick = function () {
+            if (Number.isInteger (parseInt(weight.value)) && parseInt(weight.value) > 0) {
+                this.graph.setWeight (edge.start_node,edge.end_node,parseInt(weight.value))
+                this.graphPrinter.drawGraph (this.graph, this.view.canvas)
+                this.updateGraphInfo ()
+            }
+            else {
+                if (!cont.error_showed) {
+                    cont.appendChild (document.createTextNode("Error: need int greater than 0"))
+                    cont.error_showed = true
+                }
+
+            }
+            
+        }.bind (this)
+        b.innerText = 'Save'
+        cont.appendChild (text)
+        cont.appendChild (weight)
+        cont.appendChild (b)
+        this.setState (cont)
     }
 
     createNewVertex (clickPosition)
@@ -133,7 +179,7 @@ class CanvasControllerGraphEditor extends CanvasController
     {
         this.resetNodesColor ()
         var pos = this.getCanvasEventCoordinates (e)
-        this.hovered_node = this.nodeInRange (pos)
+        this.hovered_node = this.nodeClicked (pos)
         if (this.hovered_node && this.hovered_node != this.selected_node)
             this.hovered_node.color = 'green'
         this.selected_node.color = 'green'
@@ -161,7 +207,7 @@ class CanvasControllerGraphEditor extends CanvasController
     selectNode (e)
     {
         this.resetNodesColor ()
-        let node = this.nodeInRange (this.getCanvasEventCoordinates (e))
+        let node = this.nodeClicked (this.getCanvasEventCoordinates (e))
         if (!node)
             return
         this.selected_node = node

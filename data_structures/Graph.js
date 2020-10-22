@@ -11,6 +11,7 @@ class Graph {
         this.insMatrix = new MatrixSquare ()
         this.adjList   = []
         this.directed = false
+        this.weighted = false
         this.size = 0
         this.listeners = []
     }
@@ -119,6 +120,14 @@ class Graph {
             this.adjList [n2_index].delete (n1)
         }
         this.notifyListeners ()
+    }
+
+    setWeight (n1,n2,weight)
+    {
+        var n1_index = this.nodes.indexOf (n1)
+        var n2_index = this.nodes.indexOf (n2)
+
+        this.insMatrix.set (n1_index,n2_index, weight || 1)
     }
 
     areAdjacent (n1,n2)
