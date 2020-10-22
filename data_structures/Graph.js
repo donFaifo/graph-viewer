@@ -2,6 +2,8 @@
 import {MatrixSquare} from './MatrixSquare.js'
 import {LinkedList} from './LinkedList.js'
 
+//class representing graph data structure
+
 class Graph {
 
     constructor (name) 
