@@ -123,7 +123,7 @@ class GraphPrinter
             context.moveTo (arrow_start1.x,arrow_start1.y)
             context.lineTo (edge.end_pos.x,edge.end_pos.y)
             context.moveTo (arrow_start2.x,arrow_start2.y)
-            context.lineTo (end_pos.x,end_pos.y)
+            context.lineTo (edge.end_pos.x,edge.end_pos.y)
             context.stroke ()
         }
 
