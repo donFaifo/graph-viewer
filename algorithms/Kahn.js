@@ -5,11 +5,15 @@ class Kahn extends Algorithm {
     constructor(name) {
         super(name)
         this.output.visited_nodes = []
+        this.removedEdges = []
     }
 
     run(graph) {
         this.graph = graph
         this.kahnAlgorithm(graph)
+        this.removedEdges.forEach(edge => {
+            graph.addEdge(edge.u, edge.v, 1)
+        })
     }
 
     kahnAlgorithm(graph) {
@@ -26,6 +30,7 @@ class Kahn extends Algorithm {
             this.output.visited_nodes.push(u)
             graph.getAdjacentTo(u).forEach(v => {
                 graph.removeEdge(u, v)
+                this.removedEdges.push({u, v})
                 if (this.hasNoPredecesor(v, graph)) queue.enqueue(v)
             })
         }
