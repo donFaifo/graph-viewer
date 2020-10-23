@@ -9,6 +9,8 @@ class Kahn extends Algorithm {
     }
 
     run(graph) {
+        this.output.visited_nodes.length = 0
+        this.removedEdges.length = 0
         this.graph = graph
         this.kahnAlgorithm(graph)
         this.removedEdges.forEach(edge => {
