@@ -188,14 +188,10 @@ window.addEventListener('load',function(){
             v.ControllerStateDisplay.innerHTML = 'No graph selected'
             return
         }
-        setActiveController(ni)
         if (!m.selectedGraph.directed || ge.graphInfo.hasCycles) {
-            ni.start (v,m.selectedGraph,new Kahn("Kahn"))
-            ni.stepper.stop()
-            ni.view.canvas.removeEventListener('click', ni.mouseClickListener)
-            ni.graphPrinter.drawGraph (ni.graph,ni.view.canvas)
             v.ControllerStateDisplay.innerHTML = 'The graph must be a directed acyclic graph'
         } else {
+            setActiveController(ni)
             ni.start (v,m.selectedGraph,new Kahn("Kahn"))
         }
     })
