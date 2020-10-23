@@ -28,7 +28,8 @@ class CanvasControllerNodeIndexer extends CanvasController
     stop ()
     {
         this.stepper.stop ()
-        this.view.canvas.removeEventListener ('click', this.mouseClickListener)
+        if (this.view)
+            this.view.canvas.removeEventListener ('click', this.mouseClickListener)
         this.graphPrinter.drawGraph (this.graph,this.view.canvas)
         this.setState ("Graph Node Indexer stopped")
     }
