@@ -46,7 +46,7 @@ class Kahn extends Algorithm {
     }
 
     showSource() {
-        return "//this function is called for each not conex component of the graph" + this.kahnAlgorithm.toString()
+        return this.kahnAlgorithm.toString()
     }
 }
 
