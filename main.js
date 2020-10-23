@@ -7,6 +7,7 @@ import {GraphPrinter} from './GraphPrinter.js'
 import {DFSr} from './algorithms/DFSr.js'
 import {DFSi} from './algorithms/DFSi.js'
 import {BFS} from './algorithms/BFS.js'
+import {Kahn} from './algorithms/Kahn.js'
 
 window.addEventListener('load',function(){
     var m = new Model ()
@@ -15,41 +16,30 @@ window.addEventListener('load',function(){
     var ge = new CanvasControllerGraphEditor (gp)
     var ni = new CanvasControllerNodeIndexer (gp)
     var pt = new CanvasControllerPathTracer (gp)
-
-    var OnStateChangeListener = function (state) {
-        if (state instanceof Element) {
-            v.ControllerStateDisplay.innerHTML = ''
-            v.ControllerStateDisplay.appendChild (state)
-        }
-        else
-            v.ControllerStateDisplay.innerHTML = state
-    }
-
-    ge.addOnStateChangeListener (OnStateChangeListener)
-    ni.addOnStateChangeListener (OnStateChangeListener)
-    pt.addOnStateChangeListener (OnStateChangeListener)
+    ge.addOnStateChangeListener (state => v.ControllerStateDisplay.innerHTML = state)
+    ni.addOnStateChangeListener (state => v.ControllerStateDisplay.innerHTML = state)
+    pt.addOnStateChangeListener (state => v.ControllerStateDisplay.innerHTML = state)
     var active_controller
 
     v.setup (document.getElementById ('canvas'))
-    
+
 
     v.addNewControlButton ('New Graph',function () {
         console.log ('creating new graph')
         v.ControllerStateDisplay.innerHTML = ''
         var text =document.createTextNode("Enter name for the new graph: ")
-        
+
 
         var name = document.createElement ('input')
         name.value = 'graph_' + m.graphs.length
         //name.style.marginLeft = '20px'
-        
+
 
         var b = document.createElement ('button')
         b.innerText = 'Create'
         b.onclick = function () {
             m.newGraph ( name.value)
             m.selectedGraph.directed = directed.checked
-            m.selectedGraph.weighted = weighted.checked
             setActiveController (ge)
             ge.start (v,m.selectedGraph)
         }
@@ -58,32 +48,23 @@ window.addEventListener('load',function(){
         var directed = document.createElement("input")
         directed.setAttribute("type", "checkbox")
 
-        var text3 = document.createTextNode("Click on checkbox for weighted graph: ")
-        var weighted = document.createElement("input")
-        weighted.setAttribute("type", "checkbox")
-        
         var t = document.createElement ('table')
         t.style.color = v.ControllerStateDisplay.style.color
         t.style.borderSpacing = '10px'
         var r1 = t.insertRow (0)
         var r2 = t.insertRow (1)
         var r3 = t.insertRow (2)
-        var r4 = t.insertRow (3)
         var c1_1 = r1.insertCell(0)
         var c1_2 = r1.insertCell(1)
         var c2_1 = r2.insertCell(0)
         var c2_2 = r2.insertCell(1)
         var c3_1 = r3.insertCell(0)
         var c3_2 = r3.insertCell(1)
-        var c4_1 = r4.insertCell(0)
-        var c4_2 = r4.insertCell(1)
         c1_1.appendChild (text)
         c1_2.appendChild (name)
         c2_1.appendChild (text2)
         c2_2.appendChild (directed)
-        c3_1.appendChild (text3)
-        c3_2.appendChild (weighted)
-        c4_2.appendChild (b)
+        c3_2.appendChild (b)
 
         v.ControllerStateDisplay.appendChild (t)
     })
@@ -104,7 +85,7 @@ window.addEventListener('load',function(){
         v.ControllerStateDisplay.innerHTML = ''
         var text =document.createTextNode("Select graph: ");
         v.ControllerStateDisplay.appendChild (text)
-        
+
         var sel = document.createElement("select")
         m.graphs.forEach (g => {
             let opt = document.createElement ('option')
@@ -119,7 +100,7 @@ window.addEventListener('load',function(){
         b.onclick = function () {
             if (sel.selectedIndex == -1)
                     return
-                
+
             m.loadGraph (sel.selectedIndex)
             setActiveController (ge)
             ge.start (v,m.selectedGraph)
@@ -141,7 +122,7 @@ window.addEventListener('load',function(){
         if (!m.selectedGraph) {
             v.ControllerStateDisplay.innerHTML = 'No graph selected'
             return
-        }     
+        }
         setActiveController (ni)
         ni.start (v,m.selectedGraph,new DFSr ('DFS recursive'))
     })
@@ -150,7 +131,7 @@ window.addEventListener('load',function(){
         if (!m.selectedGraph) {
             v.ControllerStateDisplay.innerHTML = 'No graph selected'
             return
-        }     
+        }
         setActiveController (ni)
         ni.start (v,m.selectedGraph,new DFSi ("DFS iterative"))
     })
@@ -159,7 +140,7 @@ window.addEventListener('load',function(){
         if (!m.selectedGraph) {
             v.ControllerStateDisplay.innerHTML = 'No graph selected'
             return
-        }     
+        }
         setActiveController (ni)
         ni.start (v,m.selectedGraph,new BFS ("BFS"))
     })
@@ -168,7 +149,7 @@ window.addEventListener('load',function(){
         if (!m.selectedGraph) {
             v.ControllerStateDisplay.innerHTML = 'No graph selected'
             return
-        }     
+        }
         setActiveController (pt)
         pt.start (v,m.selectedGraph,new DFSr ("DFS"))
     })
@@ -177,14 +158,31 @@ window.addEventListener('load',function(){
         if (!m.selectedGraph) {
             v.ControllerStateDisplay.innerHTML = 'No graph selected'
             return
-        }     
+        }
         setActiveController (pt)
         pt.start (v,m.selectedGraph,new BFS ("BFS"))
     })
 
+    v.addNewAlgorithmButton ('Kahn Algorithm', function () {
+        if (!m.selectedGraph) {
+            v.ControllerStateDisplay.innerHTML = 'No graph selected'
+            return
+        }
+        setActiveController(ni)
+        if (!m.selectedGraph.directed || ge.graphInfo.hasCycles) {
+            ni.start (v,m.selectedGraph,new Kahn("Kahn"))
+            ni.stepper.stop()
+            ni.view.canvas.removeEventListener('click', ni.mouseClickListener)
+            ni.graphPrinter.drawGraph (ni.graph,ni.view.canvas)
+            v.ControllerStateDisplay.innerHTML = 'The graph must be a directed acyclic graph'
+        } else {
+            ni.start (v,m.selectedGraph,new Kahn("Kahn"))
+        }
+    })
+
     function setActiveController (ctrl)
     {
-        if (active_controller) 
+        if (active_controller)
             active_controller.stop ()
         active_controller = ctrl
     }
