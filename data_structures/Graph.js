@@ -182,7 +182,7 @@ class Graph {
 class Node {
     constructor (id) 
     {
-        this.data = undefined
+        this.value = undefined
         this.id = id 
     }
 }
