@@ -42,11 +42,17 @@ class Heap
         console.log ('Insertion ' + this.size + ':' + this.show ())
     }
 
+    /**
+     * @return first element of the heap without removing it
+     */
     first ()
     {
         return this.size > 0 ? this.elements [1].value : null
     }
 
+    /**
+     * @return first element of the heap deleting it
+     */
     getTop ()
     {
         let top = this.elements [1]
@@ -109,13 +115,6 @@ class Heap
         let temp = this.elements [node_idx1]
         this.elements [node_idx1] = this.elements [node_idx2]
         this.elements [node_idx2] = temp
-    }
-
-    show ()
-    {
-        let r = []
-        this.elements.forEach (e => r.push (e ? e.value : 'null'))
-        return r
     }
 }
 
