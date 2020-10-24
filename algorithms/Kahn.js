@@ -14,7 +14,7 @@ class Kahn extends Algorithm {
         this.graph = graph
         this.kahnAlgorithm(graph)
         this.removedEdges.forEach(edge => {
-            graph.addEdge(edge.u, edge.v, 1)
+            graph.addEdge(edge.u, edge.v, edge.w)
         })
     }
 
@@ -31,8 +31,10 @@ class Kahn extends Algorithm {
             let u = queue.dequeue()
             this.output.visited_nodes.push(u)
             graph.getAdjacentTo(u).forEach(v => {
+                let w = graph.getWeight(u,v)
+                this.removedEdges.push({u, v, w})
                 graph.removeEdge(u, v)
-                this.removedEdges.push({u, v})
+
                 if (this.hasNoPredecesor(v, graph)) queue.enqueue(v)
             })
         }
