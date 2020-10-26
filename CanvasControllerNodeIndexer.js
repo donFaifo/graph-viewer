@@ -4,11 +4,11 @@ import {Stepper} from './Stepper.js'
 
 class CanvasControllerNodeIndexer extends CanvasController
 {
-    constructor (graphPrinter)
+    constructor (printer)
     {
         super ()
         this.stepper = new Stepper (700)
-        this.graphPrinter = graphPrinter
+        this.printer = printer
         this.mouseClickListener = this.mouseClick.bind (this)
     }
 
@@ -30,7 +30,7 @@ class CanvasControllerNodeIndexer extends CanvasController
         this.stepper.stop ()
         if (this.view)
             this.view.canvas.removeEventListener ('click', this.mouseClickListener)
-        this.graphPrinter.drawGraph (this.graph,this.view.canvas)
+        this.graph.print (this.printer,this.view.canvas)
         this.setState ("Graph Node Indexer stopped")
     }
 
@@ -41,8 +41,7 @@ class CanvasControllerNodeIndexer extends CanvasController
             if (startingNode) {
                 this.setState (startingNode + " selected as starting node")
                 this.stepper.stop ()
-                //this.view.canvas.removeEventListener ('click', this.mouseClickListener)
-                this.graphPrinter.drawGraph (this.graph,this.view.canvas)
+                this.graph.print (this.printer,this.view.canvas)
                 this.setState (" Algorithm '" + this.algorithm.name + "' running")
                 this.algorithm.run (this.graph,startingNode)
 
@@ -57,7 +56,7 @@ class CanvasControllerNodeIndexer extends CanvasController
         for (var i = 0;i<this.graph.nodes.length;i++){
             if (this.graph.nodes[i].position) {
                 var node_center_rel_click_position = clickPosition.substract (this.graph.nodes[i].position)
-                if (node_center_rel_click_position.len () < this.graphPrinter.nodeRadius) {
+                if (node_center_rel_click_position.len () < this.graph.nodeRadius) {
                     this.graph.nodes[i].click_position = node_center_rel_click_position
                     return this.graph.nodes[i]
                 }      
@@ -67,25 +66,50 @@ class CanvasControllerNodeIndexer extends CanvasController
         return null
     }
 
+    cleanUp ()
+    {
+        this.graph.nodes.forEach (n => {
+            n.index = null
+            this.graph.resetVertexPrintStyles (n)
+        })
+    }
+
+    getInfo ()
+    {
+        return "Graph Node Indexer" + 
+        "</br>- Uses given algorithm to index graph nodes" + 
+        "</br> - Algorithm used:  " + this.algorithm.name 
+    }
+
     stepThrough (indexedNodes)
     {
         var curIndex = 0
         this.stepper.walk (
             function () {
-                this.graphPrinter.drawNode (indexedNodes[curIndex], this.context, 'black', 'yellow')
+                indexedNodes[curIndex].strokeColor = 'black'
+                indexedNodes[curIndex].fillColor = 'yellow'
+                indexedNodes[curIndex].index = ++curIndex
+                this.graph.print (this.printer,this.view.canvas)
 
-                this.context.beginPath ()
-                this.context.font = "12px Arial"
-                this.context.fillStyle = 'red'
-                this.context.fillText(curIndex+1, indexedNodes[curIndex].position.x, indexedNodes[curIndex].position.y - this.graphPrinter.nodeRadius - 5);
-                this.context.stroke()
+                this.graph.nodes.forEach (n => {
+                    if (n.index) {
+                        this.context.beginPath ()
+                        this.context.font = "12px Arial"
+                        this.context.fillStyle = 'red'
+                        this.context.fillText(n.index, n.position.x, n.position.y - this.graph.nodeRadius - 5);
+                        this.context.stroke()
+                    }
+                    
+                })
+                
 
-                curIndex++
+
             }.bind (this), 
             function () {
                 return curIndex < indexedNodes.length
             },
             function () {
+                this.cleanUp ()
                 this.view.canvas.addEventListener ('click', this.mouseClickListener)
                 this.setState ("Algorithm '" + this.algorithm.name + "' finished. Click on some node to run again")
             }.bind (this)

@@ -4,6 +4,7 @@ import {CanvasControllerGraphEditor} from './CanvasControllerGraphEditor.js'
 import {CanvasControllerNodeIndexer} from './CanvasControllerNodeIndexer.js'
 import {CanvasControllerPathTracer} from './CanvasControllerPathTracer.js'
 import {GraphPrinter} from './GraphPrinter.js'
+import {Printer} from './Printer.js'
 import {DFSr} from './algorithms/DFSr.js'
 import {DFSi} from './algorithms/DFSi.js'
 import {BFS} from './algorithms/BFS.js'
@@ -13,18 +14,11 @@ window.addEventListener('load',function(){
     var m = new Model ()
     var v = new View (m)
     var gp = new GraphPrinter ()
-    var ge = new CanvasControllerGraphEditor (gp)
-    var ni = new CanvasControllerNodeIndexer (gp)
-    var pt = new CanvasControllerPathTracer (gp)
+    var ge = new CanvasControllerGraphEditor (new Printer ())
+    var ni = new CanvasControllerNodeIndexer (new Printer ())
+    var pt = new CanvasControllerPathTracer (new Printer ())
 
-    var OnStateChangeListener = function (state) {
-        if (state instanceof Element) {
-            v.ControllerStateDisplay.innerHTML = ''
-            v.ControllerStateDisplay.appendChild (state)
-        }
-        else
-            v.ControllerStateDisplay.innerHTML = state
-    }
+    var OnStateChangeListener = v.setControllerStateDisplayText.bind (v)
 
     ge.addOnStateChangeListener (OnStateChangeListener)
     ni.addOnStateChangeListener (OnStateChangeListener)
@@ -36,7 +30,6 @@ window.addEventListener('load',function(){
 
     v.addNewControlButton ('New Graph',function () {
         console.log ('creating new graph')
-        v.ControllerStateDisplay.innerHTML = ''
         var text =document.createTextNode("Enter name for the new graph: ")
 
 
@@ -86,25 +79,24 @@ window.addEventListener('load',function(){
         c3_2.appendChild (weighted)
         c4_2.appendChild (b)
 
-        v.ControllerStateDisplay.appendChild (t)
+        v.setControllerStateDisplayText (t)
     })
 
     v.addNewControlButton ('Edit Current Graph',function () {
         console.log ('Starting graph editor')
         if (!m.selectedGraph) {
-            v.ControllerStateDisplay.innerHTML = 'No graph selected'
+            v.setControllerStateDisplayText ('No graph selected')
             return
         }
-        v.ControllerStateDisplay.innerHTML = ''
         setActiveController (ge)
         ge.start (v,m.selectedGraph)
     })
 
     v.addNewControlButton ('Load Graph',function () {
         console.log ('Loading graph')
-        v.ControllerStateDisplay.innerHTML = ''
+        var cont = document.createElement ('div')
         var text =document.createTextNode("Select graph: ");
-        v.ControllerStateDisplay.appendChild (text)
+        cont.appendChild (text)
 
         var sel = document.createElement("select")
         m.graphs.forEach (g => {
@@ -113,7 +105,7 @@ window.addEventListener('load',function(){
             sel.appendChild (opt)
         })
         sel.style.marginLeft = '20px'
-        v.ControllerStateDisplay.appendChild (sel)
+        cont.appendChild (sel)
 
         var b = document.createElement ('button')
         b.innerText = 'Load'
@@ -125,12 +117,13 @@ window.addEventListener('load',function(){
             setActiveController (ge)
             ge.start (v,m.selectedGraph)
         }
-        v.ControllerStateDisplay.appendChild (b)
+        cont.appendChild (b)
+        v.setControllerStateDisplayText (cont)
     })
 
     v.addNewControlButton ('Reset Graph',function () {
         if (!m.selectedGraph) {
-            v.ControllerStateDisplay.innerHTML = 'No graph selected'
+            v.setControllerStateDisplayText ('No graph selected')
             return
         }
         m.selectedGraph.clear ()
@@ -140,7 +133,7 @@ window.addEventListener('load',function(){
 
     v.addNewAlgorithmButton ('DFS recursive', function () {
         if (!m.selectedGraph) {
-            v.ControllerStateDisplay.innerHTML = 'No graph selected'
+            v.setControllerStateDisplayText ('No graph selected')
             return
         }
         setActiveController (ni)
@@ -149,7 +142,7 @@ window.addEventListener('load',function(){
 
     v.addNewAlgorithmButton ('DFS iterative', function () {
         if (!m.selectedGraph) {
-            v.ControllerStateDisplay.innerHTML = 'No graph selected'
+            v.setControllerStateDisplayText ('No graph selected')
             return
         }
         setActiveController (ni)
@@ -158,7 +151,7 @@ window.addEventListener('load',function(){
 
     v.addNewAlgorithmButton ('BFS', function () {
         if (!m.selectedGraph) {
-            v.ControllerStateDisplay.innerHTML = 'No graph selected'
+            v.setControllerStateDisplayText ('No graph selected')
             return
         }
         setActiveController (ni)
@@ -167,7 +160,7 @@ window.addEventListener('load',function(){
 
     v.addNewAlgorithmButton ('Spanning tree with DFS', function () {
         if (!m.selectedGraph) {
-            v.ControllerStateDisplay.innerHTML = 'No graph selected'
+            v.setControllerStateDisplayText ('No graph selected')
             return
         }
         setActiveController (pt)
@@ -176,7 +169,7 @@ window.addEventListener('load',function(){
 
     v.addNewAlgorithmButton ('Spanning tree with BFS', function () {
         if (!m.selectedGraph) {
-            v.ControllerStateDisplay.innerHTML = 'No graph selected'
+            v.setControllerStateDisplayText ('No graph selected')
             return
         }
         setActiveController (pt)
@@ -185,11 +178,11 @@ window.addEventListener('load',function(){
 
     v.addNewAlgorithmButton ('Kahn Algorithm', function () {
         if (!m.selectedGraph) {
-            v.ControllerStateDisplay.innerHTML = 'No graph selected'
+            v.setControllerStateDisplayText ('No graph selected')
             return
         }
         if (!m.selectedGraph.directed || ge.graphInfo.hasCycles) {
-            v.ControllerStateDisplay.innerHTML = 'The graph must be a directed acyclic graph'
+            v.setControllerStateDisplayText ('The graph must be a directed acyclic graph')
         } else {
             setActiveController(ni)
             ni.start (v,m.selectedGraph,new Kahn("Kahn"))
@@ -198,9 +191,13 @@ window.addEventListener('load',function(){
 
     function setActiveController (ctrl)
     {
-        if (active_controller)
+        if (active_controller) {
             active_controller.stop ()
+        }  
         active_controller = ctrl
+        v.ControllerStateDisplayInfoButton.onclick = function () {
+            v.setControllerStateDisplayText (active_controller.getInfo ())
+        }
     }
 })
 

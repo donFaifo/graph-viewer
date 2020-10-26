@@ -62,17 +62,15 @@ class Graph {
         return this.directed ? counter : counter/2
     }
 
-    addVertex ()
-    {
-
-        let newNode = new Node ('N' + ++this.edgeIdCounter)
+    addNode (value)
+{
+        let newNode = new Node ('N' + ++this.edgeIdCounter,value)
         this.nodes.push (newNode)
 
         //increase insMatrix
         this.insMatrix.expand ()
 
         //increase adjList
-        //this.adjList.push (new Set ())
         this.adjList.push (new LinkedList ())
 
         this.size++
@@ -80,9 +78,9 @@ class Graph {
         return newNode
     }
 
-    removeVertex (v)
+    removeNode (n)
     {
-        const index = this.nodes.indexOf(v);
+        const index = this.nodes.indexOf(n);
         if (index > -1) {
             this.nodes.splice(index, 1);
 
@@ -90,7 +88,7 @@ class Graph {
 
             this.adjList.splice (index, 1);
             for (var i = 0;i < this.adjList.length;i++) {
-                this.adjList[i].delete (v)
+                this.adjList[i].delete (n)
             }
 
             this.size--
@@ -141,7 +139,6 @@ class Graph {
         return this.insMatrix.get(n1_index,n2_index)
     }
 
-
     areAdjacent (n1,n2)
     {
         //return this.adjList [this.nodes.indexOf (n1)].has(n2) || !this.directed && this.adjList [this.nodes.indexOf (n2)].has(n1)
@@ -189,10 +186,11 @@ class Graph {
 }
 
 class Node {
-    constructor (id)
+
+    constructor (id,value) 
     {
-        this.value = undefined
         this.id = id
+        this.value = value 
     }
 }
 export {Graph}

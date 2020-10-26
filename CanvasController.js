@@ -56,6 +56,11 @@ class CanvasController
     {
         throw new Error('stop method is no implemented in child Controller class !!!')
     }
+
+    getInfo ()
+    {
+        throw new Error('showInfo method is no implemented in child Controller class !!!')
+    }
 }
 
 export {CanvasController}
