@@ -1,14 +1,14 @@
 import {CanvasController} from './CanvasController.js'
 import {DFScycles} from './algorithms/cyclesWithDfs.js'
 import {DFSr} from './algorithms/DFSr.js'
+import {Printer} from './Printer.js'
 
 class CanvasControllerGraphEditor extends CanvasController
 {
-    constructor (graphPrinter)
+    constructor (printer)
     {
         super ()
-        this.graphPrinter = graphPrinter
-
+        this.printer = printer
         this.mouseClickListener = this.mouseClick.bind (this)
         this.selectNodeListener = this.selectNode.bind (this)
         this.drawLineListener = this.drawLine.bind (this)
@@ -30,12 +30,18 @@ class CanvasControllerGraphEditor extends CanvasController
         this.view.canvas.addEventListener ('mousedown', this.mouseClickListener)
         this.view.canvas.addEventListener ('dblclick', this.selectNodeListener)
         this.view.canvas.oncontextmenu = function () {return false}
-        this.graphPrinter.drawGraph (this.graph, this.view.canvas)
-        this.setState ("Graph Editor ready. </br>" + 
-                    "</br>- Click on canvas to create new node" + 
-                    " </br> - Double click to select node and move to reposition the node (release after dblclick before move) " + 
-                    "</br> - Click on the node and drag to create edge" +
-                    "</br> - Right Click on the node to erase it ")
+        this.graph.print (this.printer,this.view.canvas)
+        this.setState ("Graph Editor ready.")
+    }
+
+    getInfo ()
+    {
+        return "Graph Editor" + 
+        "</br>- Click on canvas to create new node" + 
+        "</br> - Double click to select node and move to reposition the node (release after dblclick before move) " + 
+        "</br> - Click on the node and drag to create edge" +
+        "</br> - Right Click on the node to erase it " +
+        "</br> - In weighted graph, Click on the edge weight to change it "
     }
 
     updateGraphInfo ()
@@ -69,7 +75,7 @@ class CanvasControllerGraphEditor extends CanvasController
             case 0 :
                 if (!node && !edge) {
                     this.createNewVertex (clickPosition)
-                    this.graphPrinter.drawGraph (this.graph, this.view.canvas)
+                    this.graph.print (this.printer,this.view.canvas)
                 }
                 else if (node){
                     this.startNewEdge (node,e)
@@ -81,7 +87,7 @@ class CanvasControllerGraphEditor extends CanvasController
             case 2 :
                 if (node) {
                     this.deleteVertex (node)
-                    this.graphPrinter.drawGraph (this.graph, this.view.canvas)
+                    this.graph.print (this.printer,this.view.canvas)
                 }
                 break
         }
@@ -92,7 +98,7 @@ class CanvasControllerGraphEditor extends CanvasController
         for (var i = 0;i<this.graph.nodes.length;i++){
             if (this.graph.nodes[i].position) {
                 var node_center_rel_click_position = clickPosition.substract (this.graph.nodes[i].position)
-                if (node_center_rel_click_position.len () < this.graphPrinter.nodeRadius) {
+                if (node_center_rel_click_position.len () < this.graph.nodeRadius) {
                     this.graph.nodes[i].click_position = node_center_rel_click_position
                     return this.graph.nodes[i]
                 }      
@@ -104,15 +110,16 @@ class CanvasControllerGraphEditor extends CanvasController
 
     edgeClicked (clickPosition)
     {
-        for (var i = 0;i<this.graphPrinter.lastDrawedEdges.length;i++){
+        let return_value
+        this.graph.currentPrintableEdges.forEach (e => {
+            var weight_center_rel_click_position = clickPosition.substract (e.weightPosition)
+            if (weight_center_rel_click_position.len () < this.graph.edgeWeightRadius) {
+                return_value = e
+                return
+            } 
+        })
 
-            var weight_center_rel_click_position = clickPosition.substract (this.graphPrinter.lastDrawedEdges[i].weight_center)
-            if (weight_center_rel_click_position.len () < this.graphPrinter.edgeWeightRadius) {
-                this.graphPrinter.lastDrawedEdges[i].click_position = weight_center_rel_click_position
-                return this.graphPrinter.lastDrawedEdges[i]
-            }        
-        }
-        return null
+        return return_value
     }
 
     updateEdgeWeight (edge)
@@ -124,8 +131,8 @@ class CanvasControllerGraphEditor extends CanvasController
         var b = document.createElement ('button')
         b.onclick = function () {
             if (Number.isInteger (parseInt(weight.value)) && parseInt(weight.value) > 0) {
-                this.graph.setWeight (edge.start_node,edge.end_node,parseInt(weight.value))
-                this.graphPrinter.drawGraph (this.graph, this.view.canvas)
+                this.graph.setWeight (edge.startVertex,edge.endVertex,parseInt(weight.value))
+                this.graph.print (this.printer,this.view.canvas)
                 this.updateGraphInfo ()
             }
             else {
@@ -146,15 +153,14 @@ class CanvasControllerGraphEditor extends CanvasController
 
     createNewVertex (clickPosition)
     {
-        let vertex = this.graph.addVertex ()
+        let vertex = this.graph.addNode (null,clickPosition)
         this.updateGraphInfo ()
-        vertex.position = clickPosition
-        return vertex
     }
 
     startNewEdge (node,e)
     {
         this.selected_node = node
+        this.selected_node.strokeColor = 'green'
         this.drawLine (e)
 
         this.view.canvas.addEventListener ('mousemove',this.drawLineListener)
@@ -169,50 +175,46 @@ class CanvasControllerGraphEditor extends CanvasController
         }
         this.view.canvas.removeEventListener ('mousemove',this.drawLineListener)
         this.view.canvas.removeEventListener ('mouseup',this.stopNewEdgeListener)
+        if (this.hovered_node)
+            this.graph.resetVertexPrintStyles (this.hovered_node)
+        this.graph.resetVertexPrintStyles (this.selected_node)
         this.selected_node = null
         this.hovered_node = null
-        this.resetNodesColor ()
-        this.graphPrinter.drawGraph (this.graph, this.view.canvas)
+        this.graph.print (this.printer,this.view.canvas)
     }
 
     drawLine (e)
     {
-        this.resetNodesColor ()
+        if (this.hovered_node && this.hovered_node != this.selected_node)
+            this.graph.resetVertexPrintStyles (this.hovered_node)
         var pos = this.getCanvasEventCoordinates (e)
         this.hovered_node = this.nodeClicked (pos)
-        if (this.hovered_node && this.hovered_node != this.selected_node)
-            this.hovered_node.color = 'green'
-        this.selected_node.color = 'green'
-        this.graphPrinter.drawGraph (this.graph, this.view.canvas)
+        if (this.hovered_node && this.hovered_node != this.selected_node) {
+            this.hovered_node.strokeColor = 'green'
+        }
+        this.graph.print (this.printer,this.view.canvas)
         this.context.beginPath ()
+        this.context.setLineDash ([])
         this.context.moveTo (this.selected_node.position.x,this.selected_node.position.y)
         this.context.lineTo (pos.x,pos.y)
         this.context.strokeStyle = 'green'
         this.context.stroke ()
     }
 
-    resetNodesColor ()
-    {
-        for (var i = 0;i<this.graph.nodes.length;i++){
-            this.graph.nodes[i].color = null
-        }
-    }
-
     deleteVertex (node)
     {
-        this.graph.removeVertex (node)
+        this.graph.removeNode (node)
         this.updateGraphInfo ()
     }
 
     selectNode (e)
     {
-        this.resetNodesColor ()
         let node = this.nodeClicked (this.getCanvasEventCoordinates (e))
         if (!node)
             return
         this.selected_node = node
-        node.color = 'green'
-        this.graphPrinter.drawGraph (this.graph, this.view.canvas)
+        this.selected_node.strokeColor = 'green'
+        this.graph.print (this.printer,this.view.canvas)
         
         this.view.canvas.addEventListener ('mousemove',this.dragNodeListener)
         document.addEventListener ('mousedown',this.stopDragNodeListener)
@@ -223,7 +225,7 @@ class CanvasControllerGraphEditor extends CanvasController
     {
         var clickPosition = this.getCanvasEventCoordinates (e)
         this.selected_node.position = this.selected_node.position.add (clickPosition.substract (this.selected_node.position).substract (this.selected_node.click_position))
-        this.graphPrinter.drawGraph (this.graph, this.view.canvas)
+        this.graph.print (this.printer,this.view.canvas)
     }
 
     stopDragNode ()
@@ -231,9 +233,9 @@ class CanvasControllerGraphEditor extends CanvasController
         this.view.canvas.removeEventListener ('mousemove',this.dragNodeListener)
         document.removeEventListener ('mousedown',this.stopDragNodeListener)
         this.view.canvas.addEventListener ('mousedown', this.mouseClickListener)
-        this.selected_node.color = null
+        this.graph.resetVertexPrintStyles (this.selected_node)
         this.selected_node = null
-        this.graphPrinter.drawGraph (this.graph, this.view.canvas)
+        this.graph.print (this.printer,this.view.canvas)
     }
 }
 

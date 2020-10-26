@@ -1,4 +1,4 @@
-import {Graph} from './data_structures/Graph.js'
+import {GraphPrintable} from './GraphPrintable.js'
 class Model
 {
     constructor ()
@@ -10,7 +10,7 @@ class Model
 
     newGraph (name)
     {
-        this.selectedGraph = new Graph (name)
+        this.selectedGraph = new GraphPrintable (name)
         this.graphs.push (this.selectedGraph)
         this.graphListeners.forEach (l => this.selectedGraph.addListener (l))
         this.notifyGraphChangeListeners ()

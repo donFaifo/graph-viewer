@@ -68,6 +68,27 @@ class View
         this.ControllerStateDisplay.style.padding = '20px'
         this.ControllerStateDisplay.style.borderRadius = '10px'
         this.ControllerStateDisplay.style.marginRight = '5px'
+
+        var t = document.createElement ('table')
+        t.style.color = this.ControllerStateDisplay.style.color
+        t.style.borderSpacing = '10px'
+        t.style.width = '100%'
+        var r1 = t.insertRow (0)
+        var r2 = t.insertRow (1)
+
+        var c1_1 = r1.insertCell(0)
+        var c1_2 = r1.insertCell(1)
+        var c2_1 = r2.insertCell(0)
+        c1_1.style.width = '80%'
+        c1_2.style.width = '10%'
+
+        this.ControllerStateDisplayInfoButton = document.createElement ('button')
+        this.ControllerStateDisplayInfoButton.innerText = "Controller info"
+        this.ControllerStateDisplayTextCell = document.createElement ('div')
+        c1_2.appendChild (this.ControllerStateDisplayInfoButton)
+        c1_1.appendChild (this.ControllerStateDisplayTextCell)
+
+        this.ControllerStateDisplay.appendChild (t)
         this.container.appendChild (this.ControllerStateDisplay)
     }
 
@@ -115,6 +136,21 @@ class View
         alg.innerText = text
         alg.onclick = callback
         this.algorithmContainer.appendChild (alg)
+    }
+
+    setControllerStateDisplayText (data)
+    {
+        if (data instanceof Element) {
+            this.ControllerStateDisplayTextCell.innerHTML = ''
+            this.ControllerStateDisplayTextCell.appendChild (data)
+        }
+        else
+            this.ControllerStateDisplayTextCell.innerHTML = data
+    }
+
+    clearControllerStateDisplayText ()
+    {
+        this.ControllerStateDisplayTextCell.innerHTML = ''
     }
 }
 
