@@ -6,7 +6,7 @@ import {LinkedList} from './LinkedList.js'
 
 class Graph {
 
-    constructor (name) 
+    constructor (name)
     {
         this.name = name
         this.nodes     = []
@@ -63,8 +63,7 @@ class Graph {
     }
 
     addNode (value)
-    {
-        
+{
         let newNode = new Node ('N' + ++this.edgeIdCounter,value)
         this.nodes.push (newNode)
 
@@ -141,10 +140,10 @@ class Graph {
     }
 
     areAdjacent (n1,n2)
-    {      
-        //return this.adjList [this.nodes.indexOf (n1)].has(n2) || !this.directed && this.adjList [this.nodes.indexOf (n2)].has(n1)  
-        let index1 = this.nodes.indexOf (n1) 
-        let index2 = this.nodes.indexOf (n2) 
+    {
+        //return this.adjList [this.nodes.indexOf (n1)].has(n2) || !this.directed && this.adjList [this.nodes.indexOf (n2)].has(n1)
+        let index1 = this.nodes.indexOf (n1)
+        let index2 = this.nodes.indexOf (n2)
         return this.directed ? this.insMatrix.get (index1,index2) >= 1 : this.insMatrix.get (index1,index2) >= 1 || this.insMatrix.get (index2,index1) >= 1
     }
 
@@ -187,10 +186,11 @@ class Graph {
 }
 
 class Node {
+
     constructor (id,value) 
     {
         this.id = id
-        this.value = value
+        this.value = value 
     }
 }
 export {Graph}
