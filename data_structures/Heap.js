@@ -42,10 +42,10 @@ class Heap
     {
         switch (type) {
             case 'max':
-                this.correctParrentChildRelation = function (v1,v2) {return v1>v2}
+                this.correctParrentChildRelation = function (v1,v2) {return v1>=v2}
                 break
             case 'min':
-                this.correctParrentChildRelation = function (v1,v2) {return v1<v2}
+                this.correctParrentChildRelation = function (v1,v2) {return v1<=v2}
                 break
             default :
                 throw Error ("Can't create a Heap of type " + type + ". Acceptable types: 'min' or 'max'")
