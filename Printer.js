@@ -17,7 +17,9 @@ class Printer
         context.moveTo (vertex.position.x,vertex.position.y)
         context.font = vertex.font
         context.fillStyle = vertex.strokeColor
-        context.fillText(vertex.value || vertex.id, vertex.position.x-12, vertex.position.y+5)
+        let text = vertex.value ? vertex.value.toString () : vertex.id.toString ()
+        let len = text.length
+        context.fillText(text, vertex.position.x-parseInt (vertex.font) * len/3, vertex.position.y+5)
         context.stroke() 
     }
 

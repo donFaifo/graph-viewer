@@ -62,6 +62,7 @@ class Heap
         this.elements.push (new_node)
         this.size++
         this.insertListeners.forEach (l => l (new_node))
+        this.changeListeners.forEach (l => l (this.elements))
         this.float (this.size)
         return new_node
     }
@@ -85,6 +86,7 @@ class Heap
             let last = this.elements [this.size]
             this.getTopListeners.forEach (l => l (top,last))
             this.elements.pop ()
+            this.changeListeners.forEach (l => l (this.elements))
             this.elements [1] = last
             if (this.size > 1) {
                 this.sink (1)

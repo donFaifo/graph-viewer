@@ -33,7 +33,6 @@ class HeapPrintable extends Heap
         this.snapShots = []
     }
 
-    //
     setCanvas (canvas)
     {
         this.canvas = canvas
