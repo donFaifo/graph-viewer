@@ -134,7 +134,7 @@ class CanvasControllerHeapVisualizer extends CanvasController
     {
         let current_idx = 0
         this.stepper.walk (function () {
-            this.context.clearRect (0,0,this.view.canvas.width,this.view.canvas.height)
+            
             this.printSnapshot (this.heap.snapShots[current_idx])
             if (current_idx < this.heap.snapShots.length - 1)
                 this.animateTransition (this.heap.snapShots[current_idx],this.heap.snapShots[current_idx+1])
@@ -148,12 +148,14 @@ class CanvasControllerHeapVisualizer extends CanvasController
     }
 
     printSnapshot (s) {
+        this.context.clearRect (0,0,this.view.canvas.width,this.view.canvas.height)
         s.forEach (n => {
             if (n != null) {
                 this.printer.printVertex (this.context,n)
             }
                 
         })
+        this.heap.printEdges (this.printer)
     }
 
     //animations for snapshot change
@@ -169,7 +171,7 @@ class CanvasControllerHeapVisualizer extends CanvasController
                     let stepDir = path.unit ()
                     let stepSize = distance / 4
                     let stepNum = 0
-                    let trans = new Stepper (70)
+                    let trans = new Stepper (100)
                     trans.walk (function () {
                         vertex1.position = vertex1.position.add (stepDir.multiply (stepSize))
                         this.context.clearRect (0,0,this.view.canvas.width,this.view.canvas.height)

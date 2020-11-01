@@ -227,6 +227,39 @@ class HeapPrintable extends Heap
             }
                 
         })
+        this.printEdges (printer)
+    }
+
+    printEdges (printer)
+    {
+        for (let i = 0;i<this.getNumRows ();i++) {
+            let firstIdx = Math.pow (2,i)
+            for (let j=firstIdx;j<firstIdx + Math.pow (2,i);j++) {
+                if (this.size >= 2*j) {
+                    
+                    let edge1 = {}
+                    edge1.startVertex = this.elements[j]
+                    edge1.endVertex = this.elements[2*j]
+                    edge1.color = this.edgeColor
+                    edge1.width = this.edgeWidht
+                    edge1.lineDash = this.edgeLineDash
+                    printer.printEdge (this.canvas.getContext ("2d"),edge1)
+                }
+                if (this.size >= 2*j + 1) {
+                    
+                    let edge2 = {}
+                    edge2.startVertex = this.elements[j]
+                    edge2.endVertex = this.elements[2*j + 1]
+                    edge2.color = this.edgeColor
+                    edge2.width = this.edgeWidht
+                    edge2.lineDash = this.edgeLineDash
+                    printer.printEdge (this.canvas.getContext ("2d"),edge2)
+                }
+                
+                
+            }
+            
+        }
     }
 
     expand (canvas)
