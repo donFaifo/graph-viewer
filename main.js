@@ -160,7 +160,6 @@ window.addEventListener('load',function(){
                     return
             setActiveController (hv)
             hv.start (v,new HeapPrintable(sel.value))
-
         }
         cont.appendChild (b)
         v.setControllerStateDisplayText (cont)
