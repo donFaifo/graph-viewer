@@ -100,7 +100,6 @@ class HeapPrintable extends Heap
         newNode.lineDash = this.nodeLineDash
         this.setPositionForElements (this.canvas, this.getNumRows())
         this.makeSnapShot ()
-        //newNode.fillColor = newNode.originalFill
     }
 
     /**
