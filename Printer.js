@@ -17,7 +17,7 @@ class Printer
         context.moveTo (vertex.position.x,vertex.position.y)
         context.font = vertex.font
         context.fillStyle = vertex.strokeColor
-        context.fillText(vertex.vale || vertex.id, vertex.position.x-12, vertex.position.y+5)
+        context.fillText(vertex.value || vertex.id, vertex.position.x-12, vertex.position.y+5)
         context.stroke() 
     }
 

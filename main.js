@@ -3,12 +3,14 @@ import {Model} from './Model.js'
 import {CanvasControllerGraphEditor} from './CanvasControllerGraphEditor.js'
 import {CanvasControllerNodeIndexer} from './CanvasControllerNodeIndexer.js'
 import {CanvasControllerPathTracer} from './CanvasControllerPathTracer.js'
+import {CanvasControllerHeapVisualizer} from './CanvasControllerHeapVisualizer.js'
 import {GraphPrinter} from './GraphPrinter.js'
 import {Printer} from './Printer.js'
 import {DFSr} from './algorithms/DFSr.js'
 import {DFSi} from './algorithms/DFSi.js'
 import {BFS} from './algorithms/BFS.js'
-import {Kahn} from "./algorithms/Kahn.js";
+import {Kahn} from "./algorithms/Kahn.js"
+import {HeapPrintable} from './HeapPrintable.js'
 
 window.addEventListener('load',function(){
     var m = new Model ()
@@ -17,12 +19,14 @@ window.addEventListener('load',function(){
     var ge = new CanvasControllerGraphEditor (new Printer ())
     var ni = new CanvasControllerNodeIndexer (new Printer ())
     var pt = new CanvasControllerPathTracer (new Printer ())
+    var hv = new CanvasControllerHeapVisualizer (new Printer ())
 
     var OnStateChangeListener = v.setControllerStateDisplayText.bind (v)
 
     ge.addOnStateChangeListener (OnStateChangeListener)
     ni.addOnStateChangeListener (OnStateChangeListener)
     pt.addOnStateChangeListener (OnStateChangeListener)
+    hv.addOnStateChangeListener (OnStateChangeListener)
     var active_controller
 
     v.setup (document.getElementById ('canvas'))
@@ -130,6 +134,37 @@ window.addEventListener('load',function(){
         m.selectedGraph.clear ()
         setActiveController (ge)
         ge.start (v,m.selectedGraph)
+    })
+
+    v.addNewControlButton ('Heap viewer',function () {
+    
+        var cont = document.createElement ('div')
+        var text =document.createTextNode("Select type of heap: ");
+        cont.appendChild (text)
+
+        var sel = document.createElement("select")
+        let opt1 = document.createElement ('option')
+        opt1.appendChild ( document.createTextNode ('max'))
+        sel.appendChild (opt1)
+        let opt2 = document.createElement ('option')
+        opt2.appendChild ( document.createTextNode ('min'))
+        sel.appendChild (opt2)
+   
+        sel.style.marginLeft = '20px'
+        cont.appendChild (sel)
+
+        var b = document.createElement ('button')
+        b.innerText = 'Create'
+        b.onclick = function () {
+            if (sel.selectedIndex == -1)
+                    return
+            setActiveController (hv)
+            hv.start (v,new HeapPrintable(sel.value))
+
+        }
+        cont.appendChild (b)
+        v.setControllerStateDisplayText (cont)
+
     })
 
     v.addNewAlgorithmButton ('DFS recursive', function () {

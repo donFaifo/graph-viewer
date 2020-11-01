@@ -9,8 +9,30 @@ class Heap
         this.elements = [null]
         this.size = 0
         this.setType (type)
+        this.idCounter = 0
+
+        this.getTopListeners = []
+        this.swapListeners = []
+        this.insertListeners = []
+        this.changeListeners = []
     }
 
+    registerGetTopListener (l)
+    {
+        this.getTopListeners.push (l)
+    }
+    registerSwapListener (l)
+    {
+        this.swapListeners.push (l)
+    }
+    registerInsertListener (l)
+    {
+        this.insertListeners.push (l)
+    }
+    registerChangeListener (l)
+    {
+        this.changeListeners.push (l)
+    }
     /**
      * Sets the type of the heap. Only two values possible: 'max' or 'min'
      * @param {String} type string with value 'max' or 'min' 
@@ -36,10 +58,12 @@ class Heap
      */
     insert (value)
     {
-        let new_node = new Node (value,++this.size)
+        let new_node = new Node (++this.idCounter,value)
         this.elements.push (new_node)
+        this.size++
+        this.insertListeners.forEach (l => l (new_node))
         this.float (this.size)
-        console.log ('Insertion ' + this.size + ':' + this.show ())
+        return new_node
     }
 
     /**
@@ -55,16 +79,20 @@ class Heap
      */
     getTop ()
     {
-        let top = this.elements [1]
+        
         if (this.size > 0) {
-            let last = this.elements.pop ()
+            let top = this.elements [1]
+            let last = this.elements [this.size]
+            this.getTopListeners.forEach (l => l (top,last))
+            this.elements.pop ()
+            this.elements [1] = last
             if (this.size > 1) {
-                this.elements [1] = last
                 this.sink (1)
             } 
             this.size--
+            return top
         }
-        return top ? top.value : null
+        return null
         
     }
 
@@ -115,15 +143,16 @@ class Heap
         let temp = this.elements [node_idx1]
         this.elements [node_idx1] = this.elements [node_idx2]
         this.elements [node_idx2] = temp
+        this.swapListeners.forEach (l => l (this.elements [node_idx2],this.elements [node_idx1]))
     }
 }
 
 class Node {
-    constructor (value,id) 
+    constructor (id,value) 
     {
         this.value = value
         this.id = id 
     }
 }
 
-export {Heap}
+export {Heap,Node}
