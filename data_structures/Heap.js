@@ -92,7 +92,7 @@ class Heap
                 this.sink (1)
             } 
             this.size--
-            return top
+            return top.value
         }
         return null
         
