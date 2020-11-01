@@ -82,6 +82,7 @@ window.addEventListener('load',function(){
         v.setControllerStateDisplayText (t)
     })
 
+    //
     v.addNewControlButton ('Edit Current Graph',function () {
         console.log ('Starting graph editor')
         if (!m.selectedGraph) {
