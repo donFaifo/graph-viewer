@@ -263,7 +263,6 @@ class HeapPrintable extends Heap
                 
                 
             }
-            
         }
     }
 
