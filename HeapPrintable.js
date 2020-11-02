@@ -47,6 +47,8 @@ class HeapPrintable extends Heap
     {
         //console.log ('onGetTop: ' + top.value + ',' + last.value) 
 
+        if (!top || !last)
+            return
         //change colors of afected nodes and take snapshot
         last.originalFill = last.fillColor
         top.originalFill = top.fillColor
@@ -198,9 +200,12 @@ class HeapPrintable extends Heap
     {
         //reset snapShots
         this.resetSnapShots()
-
+        
+        if (this.size == 0) 
+            return null
         let topValue = super.getTop ()
 
+        
         //contract if needed. The check is done inside this.contract, and also snapShot is taken
         this.contract (canvas)
 

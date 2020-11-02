@@ -18,6 +18,7 @@ class CanvasControllerHeapVisualizer extends CanvasController
         this.heap = heap
         heap.setCanvas (this.view.canvas)
         this.setState (this.getReadyStateHTML ()) 
+        this.context.clearRect (0,0,this.view.canvas.width,this.view.canvas.height)
     }
 
     stop ()
@@ -81,8 +82,10 @@ class CanvasControllerHeapVisualizer extends CanvasController
         let insert = document.createElement ('button')
         insert.innerText = 'Insert'
         insert.onclick = function () {
-            this.insertNewValue (parseInt (valueInput.value))
-            valueInput.value = null
+            if (valueInput.value && !isNaN (valueInput.value)) {
+                this.insertNewValue (parseInt (valueInput.value))
+                valueInput.value = null
+            }  
         }.bind (this)
         c2_2.appendChild (insert)
 
@@ -143,17 +146,18 @@ class CanvasControllerHeapVisualizer extends CanvasController
             return current_idx < this.heap.snapShots.length
         }.bind (this),function () {
             console.log ('finished')
-            this.heap.print (this.printer,this.view.canvas)
+            //this.heap.print (this.printer,this.view.canvas)
         }.bind (this))
     }
 
     printSnapshot (s) {
+        if (!s)
+            return
         this.context.clearRect (0,0,this.view.canvas.width,this.view.canvas.height)
         s.forEach (n => {
             if (n != null) {
                 this.printer.printVertex (this.context,n)
-            }
-                
+            } 
         })
         this.heap.printEdges (this.printer)
     }

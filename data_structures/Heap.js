@@ -86,12 +86,13 @@ class Heap
             let last = this.elements [this.size]
             this.getTopListeners.forEach (l => l (top,last))
             this.elements.pop ()
+            this.size--
             this.changeListeners.forEach (l => l (this.elements))
             this.elements [1] = last
             if (this.size > 1) {
                 this.sink (1)
             } 
-            this.size--
+            
             return top.value
         }
         return null
