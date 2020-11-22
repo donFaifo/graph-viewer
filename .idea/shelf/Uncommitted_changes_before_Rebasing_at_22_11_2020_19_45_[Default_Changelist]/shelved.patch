@@ -1,0 +1,28 @@
+Index: .vs/VSWorkspaceState.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .vs/VSWorkspaceState.json	(date 1604298077741)
++++ .vs/VSWorkspaceState.json	(date 1604298077741)
+@@ -0,0 +1,9 @@
++{
++  "ExpandedNodes": [
++    "",
++    "\\algorithms",
++    "\\data_structures"
++  ],
++  "SelectedNode": "\\algorithms\\cyclesWithDfs.js",
++  "PreviewInSolutionExplorer": false
++}
+Index: .vs/ProjectSettings.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .vs/ProjectSettings.json	(date 1604298077746)
++++ .vs/ProjectSettings.json	(date 1604298077746)
+@@ -0,0 +1,3 @@
++{
++  "CurrentProjectSetting": null
++}
